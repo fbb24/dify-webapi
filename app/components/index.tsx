@@ -42,14 +42,12 @@ const Main: FC<IMainProps> = () => {
   const [inited, setInited] = useState<boolean>(false)
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
-  const [visionConfig, setVisionConfig] =
-    ({
-      enabled: true,
-      number_limits: 2,
-      detail: Resolution.low,
-      transfer_methods: [TransferMethod.local_file],
-    })
-
+  const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
+    enabled: true,
+    number_limits: 2,
+    detail: Resolution.low,
+    transfer_methods: [TransferMethod.local_file],
+  })
   useEffect(() => {
     if (APP_INFO?.title)
       document.title = `${APP_INFO.title} - Powered by Dify`
@@ -249,9 +247,9 @@ const Main: FC<IMainProps> = () => {
         } as PromptConfig)
         setVisionConfig({
           ...file_upload?.image,
-          enabled: true,  // 强制设置为 true，覆盖 API 返回的值
+          enabled: true,
           image_file_size_limit: system_parameters?.system_parameters || 0,
-        })
+        });
         setConversationList(conversations as ConversationItem[])
 
         if (isNotNewConversation)

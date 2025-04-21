@@ -394,9 +394,27 @@ export const ssePost = (
       if (!/^(2|3)\d{2}$/.test(res.status)) {
         // eslint-disable-next-line no-new
         new Promise(() => {
-          res.json().then((data: any) => {
-            Toast.notify({ type: 'error', message: data.message || 'Server Error' })
-          })
+          // 在尝试解析前检查响应
+          const clonedRes = res.clone(); // 创建响应的副本
+          clonedRes.text().then(text => {
+            try {
+              // 尝试解析 JSON
+              if (text && text.length > 0) {
+                const data = JSON.parse(text);
+                Toast.notify({ type: 'error', message: data.message || 'Server Error' })
+              } else {
+                // 处理空响应
+                Toast.notify({ type: 'error', message: 'Empty response from server' })
+              }
+            } catch (e) {
+              // 处理无效的 JSON
+              console.error('Failed to parse error response:', text);
+              Toast.notify({ type: 'error', message: 'Invalid server response' })
+            }
+          }).catch(err => {
+            console.error('Error reading response:', err);
+            Toast.notify({ type: 'error', message: 'Failed to read server response' })
+          });
         })
         onError?.('Server Error')
         return
