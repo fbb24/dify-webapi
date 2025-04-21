@@ -141,7 +141,7 @@ const FileInAttachmentItem = ({
       {
         imagePreviewUrl && canPreview && (
           <ImagePreview
-            title={name}
+            //title={name}
             url={imagePreviewUrl}
             onCancel={() => setImagePreviewUrl('')}
           />

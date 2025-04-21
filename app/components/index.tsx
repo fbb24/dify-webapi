@@ -43,7 +43,7 @@ const Main: FC<IMainProps> = () => {
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
-    enabled: false,
+    enabled: true,
     number_limits: 2,
     detail: Resolution.low,
     transfer_methods: [TransferMethod.local_file],
@@ -136,7 +136,6 @@ const Main: FC<IMainProps> = () => {
             content: item.query,
             isAnswer: false,
             message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
-
           })
           newChatList.push({
             id: item.id,
