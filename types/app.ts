@@ -125,7 +125,7 @@ export enum TransferMethod {
 }
 
 export type VisionSettings = {
-  enabled: true
+  enabled: boolean
   number_limits: number
   detail: Resolution
   transfer_methods: TransferMethod[]
