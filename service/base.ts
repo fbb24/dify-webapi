@@ -396,7 +396,7 @@ export const ssePost = (
         new Promise(() => {
           // 在尝试解析前检查响应
           const clonedRes = res.clone(); // 创建响应的副本
-          clonedRes.text().then(text => {
+          clonedRes.text().then((text: string) => {
             try {
               // 尝试解析 JSON
               if (text && text.length > 0) {
@@ -411,7 +411,7 @@ export const ssePost = (
               console.error('Failed to parse error response:', text);
               Toast.notify({ type: 'error', message: 'Invalid server response' })
             }
-          }).catch(err => {
+          }).catch((err: Error) => {  // 添加类型注解
             console.error('Error reading response:', err);
             Toast.notify({ type: 'error', message: 'Failed to read server response' })
           });
