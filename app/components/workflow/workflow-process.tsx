@@ -17,7 +17,6 @@ type WorkflowProcessProps = {
   grayBg?: boolean
   expand?: boolean
   hideInfo?: boolean
-
 }
 const WorkflowProcessItem = ({
   data,

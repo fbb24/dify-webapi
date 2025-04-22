@@ -156,6 +156,7 @@ const Chat: FC<IChatProps> = ({
                 }), null)  // 使用逗号表达式，先执行 console.log，然后返回 null
               }
               {
+                // 仅在 visionConfig.enabled 为 true 时渲染图片上传区域 
                 visionConfig?.enabled && (
                   <>
                     {(() => { console.log('图片上传区域开始渲染'); return null; })()}
