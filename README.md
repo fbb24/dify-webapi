@@ -1,15 +1,11 @@
-## workflow中只展示关键节点更改进程
-1. workflow-process.tsx里面定位NodePannel 定位方法介绍：给一个输入展示工作流的prompt，之后就会有工作流节点的展示，f12得到前端渲染格式，再vscode ctrl+F 定位到这里 
-2. NodePannel跳转到node.tsx里面，发现NodePannel是拿props函数接受的，然后去看结构体，发现我们可以找到结构体格式，其中再点NodeTracing，其中发现模型的输出里面有个node_type，把node_type只保留llm，也就是非llm节点的输出我们直接设置成节点返回为空
-3. 综上只对，node.tsx里面的hide_info props接受时候，设置成llm是false，其余全部设置成true，并且对不想展示的节点直接返回空，你看源代码部分那个return，只是对hideinfo为true的部分做了平角圆角的修改，所以在前面直接把空结点返回
-  
-## 问题部分：
-1. workflow我感觉整体框架里面 能改的部分都改好了，但是运行还是在显示不重要的节点流
-2. file文件上传部分，我去找了issue里面的问题解释，说目前是dify那边更新了什么东西，导致那个之前的webui应用界面没法对接了，https://github.com/langgenius/webapp-conversation/issues/112 140 都是issue关于这个的讨论，目前没人解决这个问题
-这个人提出他的这个观点：https://juejin.cn/post/7475911632335323176 但我试了一下npmrun 是在报错本地改了配置 我后面下来想想怎么搞 4.20晚有个排练，得占一下时间
+二次开发项目修改的问题：
+1. 文件上传修改的enable问题；组件上传属性值修改
+2. 节点hideinfo属性也会被父组件props类似的赋值，最后直接通过筛选node_type返回空结点，实现只对核心节点llm的展示
 
 
 
+
+源项目的fork部署部分如下，相同部署：
 ## Conversation Web App Template
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
