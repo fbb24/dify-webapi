@@ -89,7 +89,10 @@ export type IChatItem = {
   agent_thoughts?: ThoughtItem[]
   message_files?: VisionFile[]
 }
-
+// IChatItem 定义了聊天项的基本属性（内容、反馈、消息类型等）；
+// ChatItem 在基本属性之上增加了与工作流相关的属性
+// 使得基本类型 IChatItem 可以在不需要工作流属性的场景中重用。
+// 这里使用 ChatItem 而不是 IChatItem，因为 Answer 组件需要访问工作流相关信息来渲染完整的 UI。
 export type ChatItem = IChatItem & {
   isError?: boolean
   workflow_run_id?: string
