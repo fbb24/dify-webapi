@@ -8,7 +8,6 @@ import AlertTriangle from '@/app/components/base/icons/line/alert-triangle'
 import Loading02 from '@/app/components/base/icons/line/loading-02'
 import CheckCircle from '@/app/components/base/icons/line/check-circle'
 import type { NodeTracing } from '@/types/app'
-import { Markdown } from '@/app/components/base/markdown'
 
 type Props = {
   nodeInfo: NodeTracing
@@ -21,7 +20,6 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
     console.log(`跳过渲染非LLM节点: ${nodeInfo.title} (类型: ${nodeInfo.node_type})`);
     return null;
   }
-
 
   const getTime = (time: number) => {
     if (time < 1)
@@ -60,6 +58,17 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
             'grow text-gray-700 text-[13px] leading-[16px] font-semibold truncate',
             hideInfo && '!text-xs',
           )} title={nodeInfo.title}>{nodeInfo.title}</div>
+
+          {/* 添加下拉箭头 */}
+          <div className={cn(
+            'ml-2 transition-transform',
+            !collapseState && 'transform rotate-180'
+          )}>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
           {nodeInfo.status !== 'running' && !hideInfo && (
             <div className='shrink-0 text-gray-500 text-xs leading-[18px]'>{`${getTime(nodeInfo.elapsed_time || 0)} · ${getTokenCount(nodeInfo.execution_metadata?.total_tokens || 0)} tokens`}</div>
           )}
@@ -79,6 +88,20 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
             </div>
           )}
         </div>
+
+        {/* 展开内容区域 */}
+        {!collapseState && (
+          <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
+            {/* 这里将放置从Answer组件提取的Markdown内容 */}
+            <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
+              {/* 内容将由NodeContentRenderer填充 */}
+              <div className="text-sm text-gray-600">
+                {/* 此处为占位，实际内容将动态加载 */}
+                <span className="text-gray-400">加载中...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
