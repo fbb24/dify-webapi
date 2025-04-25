@@ -94,13 +94,13 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
         {!collapseState && (
           <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
             <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
-              {nodeInfo.process_data ? (
-                typeof nodeInfo.process_data === 'string' ? (
+              {nodeInfo.outputs ? (
+                typeof nodeInfo.outputs === 'string' ? (
                   // 如果是字符串，直接渲染为Markdown
-                  <Markdown content={nodeInfo.process_data} />
+                  <Markdown content={nodeInfo.outputs} />
                 ) : (
                   // 如果是对象或数组，格式化为JSON字符串
-                  <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.process_data, null, 2)}\n\`\`\``} />
+                  <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />
                 )
               ) : (
                 // 如果没有数据，显示加载状态或提示
