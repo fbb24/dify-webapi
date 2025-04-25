@@ -98,6 +98,7 @@ export type ChatItem = IChatItem & {
   workflow_run_id?: string
   workflowProcess?: WorkflowProcess
 }
+//chatItem只有在与工作流属性相关时候，才会用到
 
 export type ResponseHolder = {}
 

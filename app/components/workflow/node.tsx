@@ -8,6 +8,7 @@ import AlertTriangle from '@/app/components/base/icons/line/alert-triangle'
 import Loading02 from '@/app/components/base/icons/line/loading-02'
 import CheckCircle from '@/app/components/base/icons/line/check-circle'
 import type { NodeTracing } from '@/types/app'
+import { Markdown } from '@/app/components/base/markdown'
 
 type Props = {
   nodeInfo: NodeTracing
@@ -92,13 +93,28 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
         {/* 展开内容区域 */}
         {!collapseState && (
           <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
-            {/* 这里将放置从Answer组件提取的Markdown内容 */}
             <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
-              {/* 内容将由NodeContentRenderer填充 */}
-              <div className="text-sm text-gray-600">
-                {/* 此处为占位，实际内容将动态加载 */}
-                <span className="text-gray-400">加载中...</span>
-              </div>
+              {nodeInfo.process_data ? (
+                <Markdown content={nodeInfo.process_data} />
+              ) : nodeInfo.status === 'running' ? (
+                <div className="flex items-center justify-center py-4">
+                  <div className="flex items-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="text-gray-500">处理中...</span>
+                  </div>
+                </div>
+              ) : nodeInfo.status === 'failed' ? (
+                <div className="text-sm text-red-500 py-2">
+                  执行失败: {nodeInfo.error || '未知错误'}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-400 py-2 text-center">
+                  此节点没有可显示的内容
+                </div>
+              )}
             </div>
           </div>
         )}
