@@ -8,6 +8,7 @@ import AlertTriangle from '@/app/components/base/icons/line/alert-triangle'
 import Loading02 from '@/app/components/base/icons/line/loading-02'
 import CheckCircle from '@/app/components/base/icons/line/check-circle'
 import type { NodeTracing } from '@/types/app'
+import { Markdown } from '@/app/components/base/markdown'
 
 type Props = {
   nodeInfo: NodeTracing
@@ -92,13 +93,28 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
         {/* 展开内容区域 */}
         {!collapseState && (
           <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
-            {/* 这里将放置从Answer组件提取的Markdown内容 */}
             <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
-              {/* 内容将由NodeContentRenderer填充 */}
-              <div className="text-sm text-gray-600">
-                {/* 此处为占位，实际内容将动态加载 */}
-                <span className="text-gray-400">加载中...</span>
-              </div>
+              {nodeInfo.process_data ? (
+                typeof nodeInfo.process_data === 'string' ? (
+                  // 如果是字符串，直接渲染为Markdown
+                  <Markdown content={nodeInfo.process_data} />
+                ) : (
+                  // 如果是对象或数组，格式化为JSON字符串
+                  <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.process_data, null, 2)}\n\`\`\``} />
+                )
+              ) : (
+                // 如果没有数据，显示加载状态或提示
+                <div className="text-sm text-center text-gray-500 py-4">
+                  {nodeInfo.status === 'running' ? (
+                    <div className="flex items-center justify-center">
+                      <Loading02 className="mr-1 w-3.5 h-3.5 animate-spin" />
+                      <span>正在处理...</span>
+                    </div>
+                  ) : (
+                    <span>此节点没有输出内容</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
