@@ -22,6 +22,7 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
     return null;
   }
 
+
   const getTime = (time: number) => {
     if (time < 1)
       return `${(time * 1000).toFixed(3)} ms`
@@ -59,17 +60,6 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
             'grow text-gray-700 text-[13px] leading-[16px] font-semibold truncate',
             hideInfo && '!text-xs',
           )} title={nodeInfo.title}>{nodeInfo.title}</div>
-
-          {/* 添加下拉箭头 */}
-          <div className={cn(
-            'ml-2 transition-transform',
-            !collapseState && 'transform rotate-180'
-          )}>
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
           {nodeInfo.status !== 'running' && !hideInfo && (
             <div className='shrink-0 text-gray-500 text-xs leading-[18px]'>{`${getTime(nodeInfo.elapsed_time || 0)} · ${getTokenCount(nodeInfo.execution_metadata?.total_tokens || 0)} tokens`}</div>
           )}
@@ -89,35 +79,6 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
             </div>
           )}
         </div>
-
-        {/* 展开内容区域 */}
-        {!collapseState && (
-          <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
-            <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
-              {nodeInfo.process_data ? (
-                <Markdown content={nodeInfo.process_data} />
-              ) : nodeInfo.status === 'running' ? (
-                <div className="flex items-center justify-center py-4">
-                  <div className="flex items-center space-x-2">
-                    <svg className="animate-spin h-4 w-4 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="text-gray-500">处理中...</span>
-                  </div>
-                </div>
-              ) : nodeInfo.status === 'failed' ? (
-                <div className="text-sm text-red-500 py-2">
-                  执行失败: {nodeInfo.error || '未知错误'}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-400 py-2 text-center">
-                  此节点没有可显示的内容
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
