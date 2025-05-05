@@ -82,8 +82,8 @@ const Welcome: FC<IWelcomeProps> = ({
     notify({ type: 'error', message, duration: 3000 })
   }
 
-  // 添加模型选择相关状态
-  const [selectedModel, setSelectedModel] = useState<'ChatGPT' | 'Deepseek'>('ChatGPT')
+  // 修改模型选择的状态类型和初始值
+  const [selectedModel, setSelectedModel] = useState<'ChatGPT' | 'Claude 3.7 Sonnet'>('ChatGPT')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const renderHeader = () => {
@@ -110,13 +110,13 @@ const Welcome: FC<IWelcomeProps> = ({
               <div className='py-1'>
                 {[
                   { id: 'ChatGPT', name: 'ChatGPT' },
-                  { id: 'Deepseek', name: 'Deepseek' }
+                  { id: 'Claude 3.7 Sonnet', name: 'Claude 3.7 Sonnet' }
                 ].map((model) => (
                   <div
                     key={model.id}
                     className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${selectedModel === model.id ? 'bg-gray-50 font-medium' : ''}`}
                     onClick={() => {
-                      setSelectedModel(model.id as 'ChatGPT' | 'Deepseek')
+                      setSelectedModel(model.id as 'ChatGPT' | 'Claude 3.7 Sonnet')
                       setIsDropdownOpen(false)
                     }}
                   >
@@ -230,24 +230,30 @@ const Welcome: FC<IWelcomeProps> = ({
     if (!canChat())
       return
 
-    // 复制用户输入的数据
+    // 创建一个新对象，避免修改原始输入
     const modifiedInputs = { ...inputs }
 
-    // 为第一个非空的输入值添加模型ID前缀
-    // 找到第一个输入值
+    // 获取所有输入键
     const inputKeys = Object.keys(modifiedInputs)
-    if (inputKeys.length > 0) {
-      const firstKey = inputKeys[0]
 
-      // 判断输入类型并进行修改
-      if (typeof modifiedInputs[firstKey] === 'string') {
-        // 如果是字符串，在开头添加模型标识符
+    // 如果有输入数据
+    if (inputKeys.length > 0) {
+      // 寻找第一个字符串类型的输入值
+      const firstStringKey = inputKeys.find(key =>
+        typeof modifiedInputs[key] === 'string' && modifiedInputs[key] !== ''
+      )
+
+      if (firstStringKey) {
+        // 添加模型标识前缀
         const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1'
-        modifiedInputs[firstKey] = `${modelPrefix}:${modifiedInputs[firstKey]}`
+        modifiedInputs[firstStringKey] = `${modelPrefix}${modifiedInputs[firstStringKey]}`
+
+        // 输出调试信息（可以在生产环境中移除）
+        console.log(`Added model prefix ${modelPrefix} to input ${firstStringKey}`)
       }
     }
 
-    // 调用传入的回调函数，使用修改后的 inputs
+    // 调用原始的 onStartChat 函数，传入修改后的输入
     onStartChat(modifiedInputs)
   }
 
