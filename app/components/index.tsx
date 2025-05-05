@@ -301,6 +301,12 @@ const Main: FC<IMainProps> = () => {
   const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
   const [userQuery, setUserQuery] = useState('')
 
+  const updateQueryWithPrefix = (query: string, modelPrefix: string) => {
+    const prefixedQuery = `${modelPrefix}:${query}`;
+    setUserQuery(prefixedQuery);
+    return prefixedQuery;
+  }
+
   const updateCurrentQA = ({
     responseItem,
     questionId,
@@ -355,7 +361,7 @@ const Main: FC<IMainProps> = () => {
 
     const data: Record<string, any> = {
       inputs: toServerInputs,
-      query: message,
+      query: userQuery,
       conversation_id: isNewConversation ? null : currConversationId,
     }
 
@@ -673,6 +679,7 @@ const Main: FC<IMainProps> = () => {
             canEditInputs={canEditInputs}
             savedInputs={currInputs as Record<string, any>}
             onInputsChange={setCurrInputs}
+            onUpdateQuery={updateQueryWithPrefix}
           ></ConfigSence>
 
           {
@@ -686,6 +693,11 @@ const Main: FC<IMainProps> = () => {
                     isResponding={isResponding}
                     checkCanSend={checkCanSend}
                     visionConfig={visionConfig}
+                  />
+                  <input
+                    value={userQuery}
+                    onChange={(e) => setUserQuery(e.target.value)}
+                    placeholder="输入消息..."
                   />
                 </div>
               </div>)
