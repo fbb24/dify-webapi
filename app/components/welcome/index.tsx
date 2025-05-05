@@ -82,10 +82,51 @@ const Welcome: FC<IWelcomeProps> = ({
     notify({ type: 'error', message, duration: 3000 })
   }
 
+  // 添加模型选择相关状态
+  const [selectedModel, setSelectedModel] = useState<'ChatGPT' | 'Deepseek'>('ChatGPT')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   const renderHeader = () => {
     return (
       <div className='absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8 bg-white'>
-        <div className='text-gray-900'>{conversationName}</div>
+        <div className='relative'>
+          <button
+            className='flex items-center space-x-2 text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md'
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <span>{selectedModel}</span>
+            <svg
+              className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {isDropdownOpen && (
+            <div className='absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 w-48 z-10'>
+              <div className='py-1'>
+                {[
+                  { id: 'ChatGPT', name: 'ChatGPT' },
+                  { id: 'Deepseek', name: 'Deepseek' }
+                ].map((model) => (
+                  <div
+                    key={model.id}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${selectedModel === model.id ? 'bg-gray-50 font-medium' : ''}`}
+                    onClick={() => {
+                      setSelectedModel(model.id as 'ChatGPT' | 'Deepseek')
+                      setIsDropdownOpen(false)
+                    }}
+                  >
+                    {model.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -189,7 +230,25 @@ const Welcome: FC<IWelcomeProps> = ({
     if (!canChat())
       return
 
-    onStartChat(inputs)
+    // 复制用户输入的数据
+    const modifiedInputs = { ...inputs }
+
+    // 为第一个非空的输入值添加模型ID前缀
+    // 找到第一个输入值
+    const inputKeys = Object.keys(modifiedInputs)
+    if (inputKeys.length > 0) {
+      const firstKey = inputKeys[0]
+
+      // 判断输入类型并进行修改
+      if (typeof modifiedInputs[firstKey] === 'string') {
+        // 如果是字符串，在开头添加模型标识符
+        const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1'
+        modifiedInputs[firstKey] = `${modelPrefix}:${modifiedInputs[firstKey]}`
+      }
+    }
+
+    // 调用传入的回调函数，使用修改后的 inputs
+    onStartChat(modifiedInputs)
   }
 
   const renderNoVarPanel = () => {
