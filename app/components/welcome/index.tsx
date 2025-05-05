@@ -282,31 +282,18 @@ const Welcome: FC<IWelcomeProps> = ({
     if (!canChat())
       return
 
-    // 创建一个新对象，避免修改原始输入
-    const modifiedInputs = { ...inputs }
+    const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1';
 
-    // 获取所有输入键
-    const inputKeys = Object.keys(modifiedInputs)
+    let finalInputs = { ...inputs };
 
-    // 如果有输入数据
-    if (inputKeys.length > 0) {
-      // 寻找第一个字符串类型的输入值
-      const firstStringKey = inputKeys.find(key =>
-        typeof modifiedInputs[key] === 'string' && modifiedInputs[key] !== ''
-      )
-
-      if (firstStringKey) {
-        // 添加模型标识前缀
-        const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1'
-        modifiedInputs[firstStringKey] = `${modelPrefix}${modifiedInputs[firstStringKey]}`
-
-        // 输出调试信息（可以在生产环境中移除）
-        console.log(`Added model prefix ${modelPrefix} to input ${firstStringKey}`)
-      }
+    if (!finalInputs.query) {
+      finalInputs.query = modelPrefix;  // 只使用前缀作为查询
+    } else {
+      finalInputs.query = `${modelPrefix}${finalInputs.query}`;  // 添加前缀
     }
 
-    // 调用原始的 onStartChat 函数，传入修改后的输入
-    onStartChat(modifiedInputs)
+    console.log("Final inputs being sent:", finalInputs);
+    onStartChat(finalInputs);
   }
 
   const renderNoVarPanel = () => {
