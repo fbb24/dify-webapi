@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TemplateVarPanel, { PanelTitle, VarOpBtnGroup } from '../value-panel'
 import FileUploaderInAttachmentWrapper from '../base/file-uploader-in-attachment'
@@ -85,94 +85,42 @@ const Welcome: FC<IWelcomeProps> = ({
   // 修改模型选择的状态类型和初始值
   const [selectedModel, setSelectedModel] = useState<'ChatGPT' | 'Claude 3.7 Sonnet'>('ChatGPT')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null) // 添加下拉菜单的ref
-  const buttonRef = useRef<HTMLButtonElement>(null) // 添加按钮的ref
-
-  // 添加点击外部关闭下拉菜单的逻辑
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    // 添加全局点击事件监听器
-    document.addEventListener('mousedown', handleClickOutside)
-
-    // 清理事件监听器
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isDropdownOpen]) // 依赖于isDropdownOpen状态
-
-  // 将useEffect移到组件顶层
-  useEffect(() => {
-    console.log("Dropdown state changed:", isDropdownOpen);
-  }, [isDropdownOpen]);
 
   const renderHeader = () => {
     return (
       <div className='absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8 bg-white'>
         <div className='relative'>
           <button
-            ref={buttonRef} // 添加ref到按钮
-            className='flex items-center space-x-2 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors duration-200'
-            onClick={() => {
-              console.log("Button clicked, toggling dropdown");
-              setIsDropdownOpen(prev => !prev);
-            }}
-            id="model-selector"
-            name="model-selector"
+            className='flex items-center space-x-2 text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md'
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            <span className="font-medium">{selectedModel}</span>
+            <span>{selectedModel}</span>
             <svg
-              className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+              className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 111.414 1.414l-4 4a1 1 01-1.414 0l-4-4a 1 1 0 010-1.414z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
 
           {isDropdownOpen && (
-            <div
-              ref={dropdownRef} // 添加ref到下拉菜单
-              className='fixed top-[64px] left-8 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 w-64 z-[9999] overflow-hidden'
-              style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
-            >
+            <div className='absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 w-48 z-10'>
               <div className='py-1'>
-                <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50'>
-                  选择模型
-                </div>
                 {[
-                  { id: 'ChatGPT', name: 'ChatGPT', description: '适用于日常任务和通用问答' },
-                  { id: 'Claude 3.7 Sonnet', name: 'Claude 3.7 Sonnet', description: '强大的理解与创作能力' }
+                  { id: 'ChatGPT', name: 'ChatGPT' },
+                  { id: 'Claude 3.7 Sonnet', name: 'Claude 3.7 Sonnet' }
                 ].map((model) => (
                   <div
                     key={model.id}
-                    className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${selectedModel === model.id ? 'bg-gray-50' : ''}`}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${selectedModel === model.id ? 'bg-gray-50 font-medium' : ''}`}
                     onClick={() => {
-                      console.log("Model selected:", model.id);
-                      setSelectedModel(model.id as 'ChatGPT' | 'Claude 3.7 Sonnet');
-                      setIsDropdownOpen(false);
+                      setSelectedModel(model.id as 'ChatGPT' | 'Claude 3.7 Sonnet')
+                      setIsDropdownOpen(false)
                     }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className='font-medium text-gray-800'>{model.name}</div>
-                        <div className='text-xs text-gray-500 mt-0.5'>{model.description}</div>
-                      </div>
-                      {selectedModel === model.id && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
+                    {model.name}
                   </div>
                 ))}
               </div>
@@ -180,7 +128,7 @@ const Welcome: FC<IWelcomeProps> = ({
           )}
         </div>
       </div>
-    );
+    )
   }
 
   const renderInputs = () => {
