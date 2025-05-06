@@ -282,23 +282,31 @@ const Welcome: FC<IWelcomeProps> = ({
     if (!canChat())
       return
 
-    const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1';
+    // 创建一个新对象，避免修改原始输入
+    const modifiedInputs = { ...inputs }
 
-    // 从 inputs 中提取 query，如果存在的话
-    const userQuery = inputs.query || "";
+    // 获取所有输入键
+    const inputKeys = Object.keys(modifiedInputs)
 
-    // 创建一个不包含 query 的新输入对象
-    const { query, ...cleanInputs } = { ...inputs };
+    // 如果有输入数据
+    if (inputKeys.length > 0) {
+      // 寻找第一个字符串类型的输入值
+      const firstStringKey = inputKeys.find(key =>
+        typeof modifiedInputs[key] === 'string' && modifiedInputs[key] !== ''
+      )
 
-    // 构建发送给 API 的请求数据
-    const requestData = {
-      inputs: cleanInputs,  // 输入参数，不包含 query
-      query: `${modelPrefix}${userQuery}`,  // 顶级 query 参数，添加了模型前缀
-    };
+      if (firstStringKey) {
+        // 添加模型标识前缀
+        const modelPrefix = selectedModel === 'ChatGPT' ? '0' : '1'
+        modifiedInputs[firstStringKey] = `${modelPrefix}${modifiedInputs[firstStringKey]}`
 
-    console.log("Final data being sent:", requestData);
+        // 输出调试信息（可以在生产环境中移除）
+        console.log(`Added model prefix ${modelPrefix} to input ${firstStringKey}`)
+      }
+    }
 
-    onStartChat(requestData);  // 传递整个请求数据对象
+    // 调用原始的 onStartChat 函数，传入修改后的输入
+    onStartChat(modifiedInputs)
   }
 
   const renderNoVarPanel = () => {
