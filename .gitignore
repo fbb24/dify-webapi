@@ -49,4 +49,3 @@ yarn.lock
 
 # pmpm
 pnpm-lock.yaml
-.env.remote
