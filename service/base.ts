@@ -288,20 +288,26 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
             const resClone = res.clone();
+            console.error(`API错误: ${res.status} ${res.statusText} - URL: ${urlWithPrefix}`); // <-- Add this line
 
+            // 正确处理 res.json() 返回的 Promise
             resClone.text().then((text) => {
               try {
-                // 如果响应不为空，尝试解析为 JSON
                 if (text && text.trim()) {
                   const data = JSON.parse(text);
-                  Toast.notify({ type: 'error', message: data.message || `Server Error (${res.status})` });
+
+                  switch (res.status) {
+                    case 401:
+                      Toast.notify({ type: 'error', message: 'Invalid token' });
+                      break;
+                    default:
+                      Toast.notify({ type: 'error', message: data.message || `Server error (${res.status})` });
+                  }
                 } else {
-                  // 处理空响应
-                  Toast.notify({ type: 'error', message: `Server Error (${res.status}): Empty response` });
+                  Toast.notify({ type: 'error', message: `Empty server response (${res.status})` });
                 }
               } catch (e) {
-                // JSON 解析错误
-                Toast.notify({ type: 'error', message: `Invalid response format (${res.status})` });
+                Toast.notify({ type: 'error', message: `Invalid JSON response: ${e.message}` });
                 console.error('Failed to parse response:', text);
               }
             }).catch(e => {
@@ -395,27 +401,9 @@ export const ssePost = (
       if (!/^(2|3)\d{2}$/.test(res.status)) {
         // eslint-disable-next-line no-new
         new Promise(() => {
-          // 在尝试解析前检查响应
-          const clonedRes = res.clone(); // 创建响应的副本
-          clonedRes.text().then((text: string) => {
-            try {
-              // 尝试解析 JSON
-              if (text && text.length > 0) {
-                const data = JSON.parse(text);
-                Toast.notify({ type: 'error', message: data.message || 'Server Error' })
-              } else {
-                // 处理空响应
-                Toast.notify({ type: 'error', message: 'Empty response from server' })
-              }
-            } catch (e) {
-              // 处理无效的 JSON
-              console.error('Failed to parse error response:', text);
-              Toast.notify({ type: 'error', message: 'Invalid server response' })
-            }
-          }).catch((err: Error) => {  // 添加类型注解
-            console.error('Error reading response:', err);
-            Toast.notify({ type: 'error', message: 'Failed to read server response' })
-          });
+          res.json().then((data: any) => {
+            Toast.notify({ type: 'error', message: data.message || 'Server Error' })
+          })
         })
         onError?.('Server Error')
         return
@@ -447,10 +435,10 @@ export const post = (url: string, options = {}, otherOptions?: IOtherOptions) =>
   return request(url, Object.assign({}, options, { method: 'POST' }), otherOptions)
 }
 
-export const put = (url: string, options = {}, otherOptions?: IOtherOptions) => {
+export const put = (url: string, options = {}, otherOptions?: IOOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'PUT' }), otherOptions)
 }
 
-export const del = (url: string, options = {}, otherOptions?: IOtherOptions) => {
+export const del = (url: string, options = {}, otherOptions?: IOOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'DELETE' }), otherOptions)
 }
