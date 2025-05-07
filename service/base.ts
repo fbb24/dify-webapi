@@ -287,32 +287,25 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
-            const resClone = res.clone();
-            console.error(`API错误: ${res.status} ${res.statusText} - URL: ${urlWithPrefix}`); // <-- Add this line
-
-            // 正确处理 res.json() 返回的 Promise
-            resClone.text().then((text) => {
-              try {
-                if (text && text.trim()) {
-                  const data = JSON.parse(text);
-
-                  switch (res.status) {
-                    case 401:
-                      Toast.notify({ type: 'error', message: 'Invalid token' });
-                      break;
-                    default:
-                      Toast.notify({ type: 'error', message: data.message || `Server error (${res.status})` });
-                  }
-                } else {
-                  Toast.notify({ type: 'error', message: `Empty server response (${res.status})` });
+            try {
+              const bodyJson = res.json()
+              switch (res.status) {
+                case 401: {
+                  Toast.notify({ type: 'error', message: 'Invalid token' })
+                  return
                 }
-              } catch (e) {
-                Toast.notify({ type: 'error', message: `Invalid JSON response: ${e.message}` });
-                console.error('Failed to parse response:', text);
+                default:
+                  // eslint-disable-next-line no-new
+                  new Promise(() => {
+                    bodyJson.then((data: any) => {
+                      Toast.notify({ type: 'error', message: data.message })
+                    })
+                  })
               }
-            }).catch(e => {
-              Toast.notify({ type: 'error', message: `Error reading response: ${e.message}` });
-            });
+            }
+            catch (e) {
+              Toast.notify({ type: 'error', message: `${e}` })
+            }
 
             return Promise.reject(resClone)
           }
@@ -401,9 +394,27 @@ export const ssePost = (
       if (!/^(2|3)\d{2}$/.test(res.status)) {
         // eslint-disable-next-line no-new
         new Promise(() => {
-          res.json().then((data: any) => {
-            Toast.notify({ type: 'error', message: data.message || 'Server Error' })
-          })
+          // 在尝试解析前检查响应
+          const clonedRes = res.clone(); // 创建响应的副本
+          clonedRes.text().then((text: string) => {
+            try {
+              // 尝试解析 JSON
+              if (text && text.length > 0) {
+                const data = JSON.parse(text);
+                Toast.notify({ type: 'error', message: data.message || 'Server Error' })
+              } else {
+                // 处理空响应
+                Toast.notify({ type: 'error', message: 'Empty response from server' })
+              }
+            } catch (e) {
+              // 处理无效的 JSON
+              console.error('Failed to parse error response:', text);
+              Toast.notify({ type: 'error', message: 'Invalid server response' })
+            }
+          }).catch((err: Error) => {  // 添加类型注解
+            console.error('Error reading response:', err);
+            Toast.notify({ type: 'error', message: 'Failed to read server response' })
+          });
         })
         onError?.('Server Error')
         return
@@ -435,10 +446,10 @@ export const post = (url: string, options = {}, otherOptions?: IOtherOptions) =>
   return request(url, Object.assign({}, options, { method: 'POST' }), otherOptions)
 }
 
-export const put = (url: string, options = {}, otherOptions?: IOOtherOptions) => {
+export const put = (url: string, options = {}, otherOptions?: IOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'PUT' }), otherOptions)
 }
 
-export const del = (url: string, options = {}, otherOptions?: IOOtherOptions) => {
+export const del = (url: string, options = {}, otherOptions?: IOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'DELETE' }), otherOptions)
 }
