@@ -95,13 +95,26 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
           <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
             <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
               {nodeInfo.outputs ? (
-                typeof nodeInfo.outputs === 'string' ? (
-                  // 如果是字符串，直接渲染为Markdown
-                  <Markdown content={nodeInfo.outputs} />
-                ) : (
-                  // 如果是对象或数组，格式化为JSON字符串
-                  <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />
-                )
+                (() => {
+                  // 尝试从outputs中提取text内容
+                  let textContent = null;
+
+                  if (typeof nodeInfo.outputs === 'object' && nodeInfo.outputs !== null) {
+                    // 如果outputs是对象，提取text字段
+                    textContent = nodeInfo.outputs.text;
+                  } else if (typeof nodeInfo.outputs === 'string') {
+                    // 如果outputs直接是字符串，则使用它
+                    textContent = nodeInfo.outputs;
+                  }
+
+                  // 渲染提取的内容
+                  if (textContent) {
+                    return <Markdown content={textContent} />;
+                  } else {
+                    // 如果没有text字段，则显示整个outputs的JSON形式
+                    return <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />;
+                  }
+                })()
               ) : (
                 // 如果没有数据，显示加载状态或提示
                 <div className="text-sm text-center text-gray-500 py-4">
