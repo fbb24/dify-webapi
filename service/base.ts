@@ -287,25 +287,26 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
-            try {
-              const bodyJson = res.json()
-              switch (res.status) {
-                case 401: {
-                  Toast.notify({ type: 'error', message: 'Invalid token' })
-                  return
+            const resClone = res.clone();
+
+            resClone.text().then((text) => {
+              try {
+                // 如果响应不为空，尝试解析为 JSON
+                if (text && text.trim()) {
+                  const data = JSON.parse(text);
+                  Toast.notify({ type: 'error', message: data.message || `Server Error (${res.status})` });
+                } else {
+                  // 处理空响应
+                  Toast.notify({ type: 'error', message: `Server Error (${res.status}): Empty response` });
                 }
-                default:
-                  // eslint-disable-next-line no-new
-                  new Promise(() => {
-                    bodyJson.then((data: any) => {
-                      Toast.notify({ type: 'error', message: data.message })
-                    })
-                  })
+              } catch (e) {
+                // JSON 解析错误
+                Toast.notify({ type: 'error', message: `Invalid response format (${res.status})` });
+                console.error('Failed to parse response:', text);
               }
-            }
-            catch (e) {
-              Toast.notify({ type: 'error', message: `${e}` })
-            }
+            }).catch(e => {
+              Toast.notify({ type: 'error', message: `Error reading response: ${e.message}` });
+            });
 
             return Promise.reject(resClone)
           }
