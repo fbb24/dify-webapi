@@ -337,19 +337,20 @@ const Main: FC<IMainProps> = () => {
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
-    }
-    const toServerInputs: Record<string, any> = {}
-    if (currInputs) {
-      Object.keys(currInputs).forEach((key) => {
-        const value = currInputs[key]
-        if (value.supportFileType)
-          toServerInputs[key] = transformToServerFile(value)
+    }//notify 用于界面显示临时弹出的通知消息，接受对象参数，包含属性，弹框error报错的
+    const toServerInputs: Record<string, any> = {}  // 创建空对象存储转换后的输入
+    if (currInputs) {  // 如果有当前输入
+      Object.keys(currInputs).forEach((key) => {  // 遍历所有输入键
+        const value = currInputs[key]  // 获取每个键对应的值
 
-        else if (value[0]?.supportFileType)
-          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
+        if (value.supportFileType)  // 如果是单个文件类型
+          toServerInputs[key] = transformToServerFile(value)  // 转换为服务器需要的文件格式
 
-        else
-          toServerInputs[key] = value
+        else if (value[0]?.supportFileType)  // 如果是文件数组
+          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))  // 转换每个文件
+
+        else  // 如果是普通值(文本、数字等)
+          toServerInputs[key] = value  // 直接使用原始值
       })
     }
 
