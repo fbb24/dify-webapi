@@ -26,10 +26,10 @@ import { SupportUploadFileTypes } from './types'
 import { useToastContext } from '@/app/components/base/toast'
 import { TransferMethod } from '@/types/app'
 import { formatFileSize } from '@/utils/format'
-
+import { request, IOtherOptions } from '@/service/base'
 
 export const post = <T>(url: string, options = {}, otherOptions?: IOtherOptions) => {
-  return request<T>(url, Object.assign({}, options, { method: 'POST' }), otherOptions)
+  return request(url, Object.assign({}, options, { method: 'POST' }), otherOptions)
 }
 
 export const uploadRemoteFileInfo = (url: string, isPublic?: boolean) => {

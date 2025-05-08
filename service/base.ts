@@ -114,7 +114,7 @@ export type IOnWorkflowFinished = (workflowFinished: WorkflowFinishedResponse) =
 export type IOnNodeStarted = (nodeStarted: NodeStartedResponse) => void
 export type IOnNodeFinished = (nodeFinished: NodeFinishedResponse) => void
 
-type IOtherOptions = {
+export type IOtherOptions = {
   isPublicAPI?: boolean
   bodyStringify?: boolean
   needAllResponseContent?: boolean
