@@ -22,6 +22,7 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import { useModelId } from '@/app/components/welcome/index'
 
 export type IMainProps = {
   params: any
@@ -333,14 +334,17 @@ const Main: FC<IMainProps> = () => {
     }
   }
 
+  const { modelId } = useModelId(); // 获取当前选择的模型ID
+
   const handleSend = async (message: string, files?: VisionFile[]) => {
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
-    }//notify 用于界面显示临时弹出的通知消息，接受对象参数，包含属性，弹框error报错的
-    const toServerInputs: Record<string, any> = {}  // 创建空对象存储转换后的输入
-    if (currInputs) {  // 如果有当前输入
-      Object.keys(currInputs).forEach((key) => {  // 遍历所有输入键
+    }
+
+    const toServerInputs: Record<string, any> = {}
+    if (currInputs) {
+      Object.keys(currInputs).forEach((key) => {
         const value = currInputs[key]  // 获取每个键对应的值
 
         if (value.supportFileType)  // 如果是单个文件类型
@@ -356,7 +360,9 @@ const Main: FC<IMainProps> = () => {
 
     const data: Record<string, any> = {
       inputs: toServerInputs,
-      query: message,
+
+      // 在 query 前拼接模型ID (0 或 1)
+      query: `${modelId}${message}`,
       conversation_id: isNewConversation ? null : currConversationId,
     }
 
@@ -372,11 +378,11 @@ const Main: FC<IMainProps> = () => {
       })
     }
 
-    // question
+    // question显示原始消息，不添加modelId前缀
     const questionId = `question-${Date.now()}`
     const questionItem = {
       id: questionId,
-      content: message,
+      content: message,  // 这里保持原始消息，不添加前缀
       isAnswer: false,
       message_files: files,
     }
