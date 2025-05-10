@@ -35,13 +35,16 @@ const Toast = ({
   // sometimes message is react node array. Not handle it.
   if (typeof message !== 'string')
     return null
+  if (type === 'error') {
+    return null
+  }
 
   return <div className={classNames(
     'fixed rounded-md p-4 my-4 mx-8 z-50',
     'top-0',
     'right-0',
     type === 'success' ? 'bg-green-50' : '',
-    type === 'error' ? 'bg-red-50' : '',
+    //type === 'error' ? 'bg-red-50' : '',
     type === 'warning' ? 'bg-yellow-50' : '',
     type === 'info' ? 'bg-blue-50' : '',
   )}>
@@ -57,7 +60,7 @@ const Toast = ({
           classNames(
             'text-sm font-medium',
             type === 'success' ? 'text-green-800' : '',
-            type === 'error' ? 'text-red-800' : '',
+            //type === 'error' ? 'text-red-800' : '',
             type === 'warning' ? 'text-yellow-800' : '',
             type === 'info' ? 'text-blue-800' : '',
           )
@@ -66,7 +69,7 @@ const Toast = ({
           classNames(
             'mt-2 text-sm',
             type === 'success' ? 'text-green-700' : '',
-            type === 'error' ? 'text-red-700' : '',
+            //type === 'error' ? 'text-red-700' : '',
             type === 'warning' ? 'text-yellow-700' : '',
             type === 'info' ? 'text-blue-700' : '',
           )
