@@ -95,26 +95,41 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
           <div className="px-3 pb-3 border-t border-gray-100 pt-2 mt-1">
             <div className="max-h-[300px] overflow-y-auto" id={`node-content-${nodeInfo.id}`}>
               {nodeInfo.outputs ? (
-                (() => {
-                  // 尝试从outputs中提取text内容
-                  let textContent = null;
+                <>
+                  {(() => {
+                    // 尝试从outputs中提取text内容
+                    let textContent = null;
 
-                  if (typeof nodeInfo.outputs === 'object' && nodeInfo.outputs !== null) {
-                    // 如果outputs是对象，提取text字段
-                    textContent = nodeInfo.outputs.text;
-                  } else if (typeof nodeInfo.outputs === 'string') {
-                    // 如果outputs直接是字符串，则使用它
-                    textContent = nodeInfo.outputs;
-                  }
+                    if (typeof nodeInfo.outputs === 'object' && nodeInfo.outputs !== null) {
+                      // 如果outputs是对象，提取text字段
+                      textContent = nodeInfo.outputs.text;
+                    } else if (typeof nodeInfo.outputs === 'string') {
+                      // 如果outputs直接是字符串，则使用它
+                      textContent = nodeInfo.outputs;
+                    }
 
-                  // 渲染提取的内容
-                  if (textContent) {
-                    return <Markdown content={textContent} />;
-                  } else {
-                    // 如果没有text字段，则显示整个outputs的JSON形式
-                    return <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />;
-                  }
-                })()
+                    // 渲染提取的内容
+                    if (textContent) {
+                      return <Markdown content={textContent} />;
+                    } else {
+                      // 如果没有text字段，则显示整个outputs的JSON形式
+                      return <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />;
+                    }
+                  })()}
+
+                  {/* 检查是否为隐私提取节点，如果是则添加图片框 */}
+                  {nodeInfo.title.includes('隐私提取') && (
+                    <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">隐私信息可视化</h4>
+                      <div className="bg-gray-100 p-4 rounded-md">
+                        {/* TODO: 这里将添加图片渲染逻辑 */}
+                        <div className="text-gray-500 text-sm">
+                          此处将显示隐私信息的图表可视化
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 // 如果没有数据，显示加载状态或提示
                 <div className="text-sm text-center text-gray-500 py-4">
