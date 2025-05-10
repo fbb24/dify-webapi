@@ -69,7 +69,11 @@ const Sidebar: FC<ISidebarProps> = ({
                 )}
                 aria-hidden="true"
               />
-              {item.name && item.name.length > 1 ? item.name.substring(1) : item.name}
+              {item.name && (
+                item.name.length > 1 && (item.name[0] === '0' || item.name[0] === '1')
+                  ? item.name.substring(1)
+                  : item.name
+              )}
             </div>
           )
         })}

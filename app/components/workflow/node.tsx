@@ -108,16 +108,43 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
                     } else if (typeof nodeInfo.outputs === 'string') {
                       textContent = nodeInfo.outputs;
                     }
+
                     // 渲染Markdown内容
                     if (textContent) {
-                      return <Markdown content={textContent} />;
+                      // 如果是数据脱敏节点，添加特殊的边框和标题
+                      if (nodeInfo.title.includes('数据脱敏')) {
+                        return (
+                          <div className="mb-4">
+                            <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">文本脱敏</h4>
+                              <div className="bg-white rounded-md p-2">
+                                <Markdown content={textContent} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        // 正常渲染
+                        return <Markdown content={textContent} />;
+                      }
                     } else {
                       // 如果没有text字段，则显示整个outputs的JSON形式
-                      return <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />;
+                      if (nodeInfo.title.includes('数据脱敏')) {
+                        return (
+                          <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">文本脱敏</h4>
+                            <div className="bg-white rounded-md p-2">
+                              <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return <Markdown content={`\`\`\`json\n${JSON.stringify(nodeInfo.outputs, null, 2)}\n\`\`\``} />;
+                      }
                     }
                   })()}
 
-                  {/* 检查是否为隐私提取节点，如果是则添加图片框 */}
+                  {/* 检查是否为数据脱敏节点，如果是则添加图片框 */}
                   {(() => {
                     if (nodeInfo.title.includes('数据脱敏')) {
                       console.log(`节点 ${nodeInfo.id} 开始渲染隐私图片, URL: http://sxt3090.sitiyou.top:3002/processed/processed.jpg`);
@@ -126,12 +153,9 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
                         <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
                           <h4 className="text-sm font-medium text-gray-700 mb-2">图片脱敏</h4>
                           <div className="bg-gray-100 rounded-md overflow-hidden">
-                            {/* 添加onLoad回调检查图片是否成功加载 */}
                             <ImageDisplay
                               imageUrl="http://sxt3090.sitiyou.top:3002/processed/processed.jpg"
                               alt="隐私信息可视化图表"
-                            /*onLoad={() => console.log(`节点 ${nodeInfo.id} 的图片成功加载`)}
-                            onError={() => console.error(`节点 ${nodeInfo.id} 的图片加载失败`)}*/
                             />
                           </div>
                         </div>
