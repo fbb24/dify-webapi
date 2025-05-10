@@ -147,18 +147,18 @@ const Chat: FC<IChatProps> = ({
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute z-10 bottom-0 left-0 right-0')}>
             <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
               {
-                (console.log('输入区域渲染状态:', {
+               /* (console.log('输入区域渲染状态:', {
                   isHideSendInput,
                   visionConfigEnabled: visionConfig?.enabled,
                   visionConfig,
                   filesCount: files?.length
                 }), null)  // 使用逗号表达式，先执行 console.log，然后返回 null
-              }
+              */}
               {
                 // 仅在 visionConfig.enabled 为 true 时渲染图片上传区域 
                 visionConfig?.enabled && (
                   <>
-                    {(() => { console.log('图片上传区域开始渲染'); return null; })()}
+                    {/*(() => { console.log('图片上传区域开始渲染'); return null; })()*/}
                     <div className='absolute bottom-2 left-2 flex items-center'>
                       <ChatImageUploader
                         settings={visionConfig}

@@ -19,7 +19,7 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
   const [collapseState, setCollapseState] = useState<boolean>(true)
 
   if (nodeInfo.node_type !== 'llm') {
-    console.log(`跳过渲染非LLM节点: ${nodeInfo.title} (类型: ${nodeInfo.node_type})`);
+    //console.log(`跳过渲染非LLM节点: ${nodeInfo.title} (类型: ${nodeInfo.node_type})`);
     return null;
   }
 
@@ -44,8 +44,10 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
     setCollapseState(!nodeInfo.expand)
   }, [nodeInfo.expand])
 
+
   return (
     <div className={cn('px-4 py-1', hideInfo && '!p-0')}>
+      {/* 保持其他渲染逻辑不变 */}
       <div className={cn('group transition-all bg-white border border-gray-100 rounded-2xl shadow-xs hover:shadow-md', hideInfo && '!rounded-lg')}>
         <div
           className={cn(
@@ -55,7 +57,7 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
           )}
           onClick={() => setCollapseState(!collapseState)}
         >
-          <BlockIcon size={hideInfo ? 'xs' : 'sm'} className={cn('shrink-0 mr-2', hideInfo && '!mr-1')} type={nodeInfo.node_type} toolIcon={nodeInfo.extras?.icon || nodeInfo.extras} />
+          <BlockIcon size={'sm'} className={cn('shrink-0 mr-2', hideInfo && '!mr-1')} type={nodeInfo.node_type} toolIcon={nodeInfo.extras?.icon || nodeInfo.extras} />
           <div className={cn(
             'grow text-gray-700 text-[13px] leading-[16px] font-semibold truncate',
             hideInfo && '!text-xs',
@@ -98,18 +100,15 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
               {nodeInfo.outputs ? (
                 <>
                   {(() => {
-                    // 尝试从outputs中提取text内容
+                    // 尝试从outputs中提取text内容 区分object和string对象
                     let textContent = null;
 
                     if (typeof nodeInfo.outputs === 'object' && nodeInfo.outputs !== null) {
-                      // 如果outputs是对象，提取text字段
                       textContent = nodeInfo.outputs.text;
                     } else if (typeof nodeInfo.outputs === 'string') {
-                      // 如果outputs直接是字符串，则使用它
                       textContent = nodeInfo.outputs;
                     }
-
-                    // 渲染提取的内容
+                    // 渲染Markdown内容
                     if (textContent) {
                       return <Markdown content={textContent} />;
                     } else {
@@ -119,18 +118,27 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
                   })()}
 
                   {/* 检查是否为隐私提取节点，如果是则添加图片框 */}
-                  {nodeInfo.title.includes('隐私提取') && (
-                    <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">数据脱敏（图片展示）</h4>
-                      <div className="bg-gray-100 rounded-md overflow-hidden">
-                        {/* 直接传入图片URL，无需用户交互 */}
-                        <ImageDisplay
-                          imageUrl="http://sxt3090.sitiyou.top:3002/processed/processed.jpg"
-                          alt="隐私信息可视化图表"
-                        />
-                      </div>
-                    </div>
-                  )}
+                  {(() => {
+                    if (nodeInfo.title.includes('数据脱敏')) {
+                      console.log(`节点 ${nodeInfo.id} 开始渲染隐私图片, URL: http://sxt3090.sitiyou.top:3002/processed/processed.jpg`);
+
+                      return (
+                        <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">图片脱敏</h4>
+                          <div className="bg-gray-100 rounded-md overflow-hidden">
+                            {/* 添加onLoad回调检查图片是否成功加载 */}
+                            <ImageDisplay
+                              imageUrl="http://sxt3090.sitiyou.top:3002/processed/processed.jpg"
+                              alt="隐私信息可视化图表"
+                            /*onLoad={() => console.log(`节点 ${nodeInfo.id} 的图片成功加载`)}
+                            onError={() => console.error(`节点 ${nodeInfo.id} 的图片加载失败`)}*/
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </>
               ) : (
                 // 如果没有数据，显示加载状态或提示
