@@ -9,6 +9,7 @@ import Loading02 from '@/app/components/base/icons/line/loading-02'
 import CheckCircle from '@/app/components/base/icons/line/check-circle'
 import type { NodeTracing } from '@/types/app'
 import { Markdown } from '@/app/components/base/markdown'
+import ImageDisplay from '@/app/components/base/image-display'
 
 type Props = {
   nodeInfo: NodeTracing
@@ -120,12 +121,13 @@ const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
                   {/* 检查是否为隐私提取节点，如果是则添加图片框 */}
                   {nodeInfo.title.includes('隐私提取') && (
                     <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">隐私信息可视化</h4>
-                      <div className="bg-gray-100 p-4 rounded-md">
-                        {/* TODO: 这里将添加图片渲染逻辑 */}
-                        <div className="text-gray-500 text-sm">
-                          此处将显示隐私信息的图表可视化
-                        </div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">数据脱敏（图片展示）</h4>
+                      <div className="bg-gray-100 rounded-md overflow-hidden">
+                        {/* 直接传入图片URL，无需用户交互 */}
+                        <ImageDisplay
+                          imageUrl="http://sxt3090.sitiyou.top:3002/processed/processed.jpg"
+                          alt="隐私信息可视化图表"
+                        />
                       </div>
                     </div>
                   )}
