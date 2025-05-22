@@ -25,6 +25,7 @@ import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import { useModelId } from '@/app/components/welcome/index'
 import Login from '@/app/components/login'
 import { useRouter } from 'next/navigation' // 添加路由导入
+import Welcome from './welcome'
 
 export type IMainProps = {
   params: any
@@ -646,32 +647,64 @@ const Main: FC<IMainProps> = () => {
 
   // 添加登录状态
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  // 添加一个状态，用于区分是否显示 Welcome 组件
+  const [showWelcome, setShowWelcome] = useState(false)
 
-  // 检查用户是否已登录 - 只有当localStorage中有登录标记时才认为已登录
+  // 检查用户是否已登录
   useEffect(() => {
     const loginStatus = localStorage.getItem('isLoggedIn')
     if (loginStatus === 'true') {
       setIsLoggedIn(true)
-    } else {
-      // 确保未登录状态时清除相关标记
-      localStorage.removeItem('isLoggedIn')
-      setIsLoggedIn(false)
+      // 直接设置为 false，不显示 Welcome 组件
+      setShowWelcome(false)
     }
   }, [])
 
-  // 处理登录 - 登录成功时设置状态并跳转
+  // 处理登录 - 登录成功时设置状态
   const handleLogin = () => {
     setIsLoggedIn(true)
+    // 不显示 Welcome
+    setShowWelcome(false)
     localStorage.setItem('isLoggedIn', 'true')
-    router.push('/welcome') // 登录成功后跳转到welcome页面
+  }
+
+  // 处理从 Welcome 开始聊天的回调
+  const handleWelcomeStartChat = (inputs: Record<string, any>) => {
+    console.log('Start chat with inputs:', inputs)
+    // 这里可以处理开始聊天的逻辑
+    setShowWelcome(false) // 隐藏 Welcome 组件，显示聊天界面
+    // 可能需要进行其他初始化操作
+  }
+
+  // 处理输入变化
+  const handleInputsChange = (inputs: Record<string, any>) => {
+    console.log('Inputs changed:', inputs)
+    // 保存用户输入
   }
 
   // 如果未登录，显示登录页面
   if (!isLoggedIn) {
-    // 确保传递onLogin回调给Login组件
     return <Login onLogin={handleLogin} />
   }
 
+  // 如果登录了且需要显示 Welcome
+  if (showWelcome && APP_INFO && promptConfig) {
+    return (
+      <Welcome
+        conversationName="新对话"
+        hasSetInputs={false}
+        isPublicVersion={true}
+        siteInfo={APP_INFO}
+        promptConfig={promptConfig}
+        onStartChat={handleWelcomeStartChat}
+        canEditInputs={true}
+        savedInputs={{}}
+        onInputsChange={handleInputsChange}
+      />
+    )
+  }
+
+  // 如果不需要显示 Welcome，则显示正常的聊天界面
   if (appUnavailable)
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
