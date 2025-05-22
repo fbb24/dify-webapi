@@ -23,6 +23,8 @@ import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/confi
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import { useModelId } from '@/app/components/welcome/index'
+import Login from '@/app/components/login'
+import { useRouter } from 'next/navigation' // 添加路由导入
 
 export type IMainProps = {
   params: any
@@ -33,6 +35,7 @@ const Main: FC<IMainProps> = () => {
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
+  const router = useRouter() // 获取路由实例
 
   /*
   * app info
@@ -639,6 +642,34 @@ const Main: FC<IMainProps> = () => {
         copyRight={APP_INFO.copyright || APP_INFO.title}
       />
     )
+  }
+
+  // 添加登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // 检查用户是否已登录 - 只有当localStorage中有登录标记时才认为已登录
+  useEffect(() => {
+    const loginStatus = localStorage.getItem('isLoggedIn')
+    if (loginStatus === 'true') {
+      setIsLoggedIn(true)
+    } else {
+      // 确保未登录状态时清除相关标记
+      localStorage.removeItem('isLoggedIn')
+      setIsLoggedIn(false)
+    }
+  }, [])
+
+  // 处理登录 - 登录成功时设置状态并跳转
+  const handleLogin = () => {
+    setIsLoggedIn(true)
+    localStorage.setItem('isLoggedIn', 'true')
+    router.push('/welcome') // 登录成功后跳转到welcome页面
+  }
+
+  // 如果未登录，显示登录页面
+  if (!isLoggedIn) {
+    // 确保传递onLogin回调给Login组件
+    return <Login onLogin={handleLogin} />
   }
 
   if (appUnavailable)
