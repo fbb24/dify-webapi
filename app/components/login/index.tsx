@@ -8,32 +8,60 @@ interface LoginProps {
 }
 
 const Login: FC<LoginProps> = ({ onLogin }) => {
+    console.log('Login 组件渲染，onLogin 属性:', !!onLogin)
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    // 添加一个新的状态标志，专门用于跟踪按钮点击
+    const [submitClicked, setSubmitClicked] = useState(false)
     const [loginSuccess, setLoginSuccess] = useState(false)
     const router = useRouter()
 
+    // 组件挂载时检查登录状态初始值并清除可能的缓存
+    useEffect(() => {
+        console.log('组件挂载，初始 loginSuccess 值:', loginSuccess)
+        // 清除本地存储中可能保存的登录信息
+        localStorage.removeItem('isLoggedIn')
+        // 确保初始状态都是未登录
+        setLoginSuccess(false)
+        setSubmitClicked(false)
+    }, [])
+
     // 监听登录状态变化，成功后跳转
     useEffect(() => {
-        if (loginSuccess) {
+        console.log('loginSuccess 状态变化:', loginSuccess, '提交按钮点击:', submitClicked)
+        // 只有当用户点击了登录按钮并且登录成功时才跳转
+        if (loginSuccess && submitClicked) {
+            console.log('准备跳转, 用户提交了表单')
+            // 可以在这里存储登录状态
+            localStorage.setItem('isLoggedIn', 'true')
+
             if (onLogin) {
+                console.log('调用 onLogin 回调')
                 onLogin()
             } else {
+                console.log('跳转到 /welcome 页面')
                 router.push('/welcome')
             }
         }
-    }, [loginSuccess, onLogin, router])
+    }, [loginSuccess, submitClicked, onLogin, router])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        console.log('表单提交，输入值:', { email, password })
+
+        // 设置提交按钮已点击
+        setSubmitClicked(true)
 
         // 验证输入
         if (!email || !password) {
+            console.log('输入验证失败')
             setError('用户名和密码不能为空')
             return
         }
 
+        console.log('输入验证通过，设置登录成功状态')
         // 这里可以添加实际的登录验证逻辑
         // 模拟登录过程
         // 假设登录成功，设置成功状态
@@ -105,6 +133,7 @@ const Login: FC<LoginProps> = ({ onLogin }) => {
                     <button
                         type="submit"
                         className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-150"
+                        onClick={() => console.log('登录按钮被点击')}
                     >
                         登录
                     </button>
