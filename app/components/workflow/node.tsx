@@ -18,7 +18,7 @@ type Props = {
 const NodePanel: FC<Props> = ({ nodeInfo, hideInfo = false }) => {
   const [collapseState, setCollapseState] = useState<boolean>(true)
 
-  if (nodeInfo.node_type !== 'llm') {
+  if (nodeInfo.node_type !== 'llm' || nodeInfo.title === '翻译') {
     //console.log(`跳过渲染非LLM节点: ${nodeInfo.title} (类型: ${nodeInfo.node_type})`);
     return null;
   }
