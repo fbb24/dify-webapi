@@ -114,7 +114,7 @@ export type IOnWorkflowFinished = (workflowFinished: WorkflowFinishedResponse) =
 export type IOnNodeStarted = (nodeStarted: NodeStartedResponse) => void
 export type IOnNodeFinished = (nodeFinished: NodeFinishedResponse) => void
 
-type IOtherOptions = {
+export type IOtherOptions = {
   isPublicAPI?: boolean
   bodyStringify?: boolean
   needAllResponseContent?: boolean
@@ -287,25 +287,30 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           const resClone = res.clone()
           // Error handler
           if (!/^(2|3)\d{2}$/.test(res.status)) {
-            try {
-              const bodyJson = res.json()
-              switch (res.status) {
-                case 401: {
-                  Toast.notify({ type: 'error', message: 'Invalid token' })
-                  return
+            const resClone = res.clone();
+
+            resClone.text().then(text => {
+              try {
+                if (text && text.trim()) {
+                  const data = JSON.parse(text);
+
+                  switch (res.status) {
+                    case 401:
+                      Toast.notify({ type: 'error', message: 'Invalid token' });
+                      break;
+                    default:
+                      Toast.notify({ type: 'error', message: data.message || `Server error (${res.status})` });
+                  }
+                } else {
+                  Toast.notify({ type: 'error', message: `Empty server response (${res.status})` });
                 }
-                default:
-                  // eslint-disable-next-line no-new
-                  new Promise(() => {
-                    bodyJson.then((data: any) => {
-                      Toast.notify({ type: 'error', message: data.message })
-                    })
-                  })
+              } catch (e) {
+                Toast.notify({ type: 'error', message: `Invalid JSON response: ${e.message}` });
+                console.error('Failed to parse response:', text);
               }
-            }
-            catch (e) {
-              Toast.notify({ type: 'error', message: `${e}` })
-            }
+            }).catch(e => {
+              Toast.notify({ type: 'error', message: `Error reading response: ${e.message}` });
+            });
 
             return Promise.reject(resClone)
           }

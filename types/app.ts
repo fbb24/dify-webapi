@@ -95,6 +95,7 @@ export type ChatItem = IChatItem & {
   workflow_run_id?: string
   workflowProcess?: WorkflowProcess
 }
+//chatItem只有在与工作流属性相关时候，才会用到
 
 export type ResponseHolder = {}
 
@@ -173,7 +174,7 @@ export type NodeTracing = {
   predecessor_node_id: string
   node_id: string
   node_type: BlockEnum
-  title: string
+  title: string //这个里面有隐私提取四个字的 字段
   inputs: any
   process_data: any
   outputs?: any

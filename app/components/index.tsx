@@ -22,6 +22,10 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import { useModelId } from '@/app/components/welcome/index'
+import Login from '@/app/components/login'
+import { useRouter } from 'next/navigation' // 添加路由导入
+import Welcome from './welcome'
 
 export type IMainProps = {
   params: any
@@ -32,6 +36,7 @@ const Main: FC<IMainProps> = () => {
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
+  const router = useRouter() // 获取路由实例
 
   /*
   * app info
@@ -50,7 +55,7 @@ const Main: FC<IMainProps> = () => {
   })
   useEffect(() => {
     if (APP_INFO?.title)
-      document.title = `${APP_INFO.title} - Powered by Dify`
+      document.title = `${APP_INFO.title}`
   }, [APP_INFO?.title])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
@@ -333,29 +338,35 @@ const Main: FC<IMainProps> = () => {
     }
   }
 
+  const { modelId } = useModelId(); // 获取当前选择的模型ID
+
   const handleSend = async (message: string, files?: VisionFile[]) => {
     if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
+
     const toServerInputs: Record<string, any> = {}
     if (currInputs) {
       Object.keys(currInputs).forEach((key) => {
-        const value = currInputs[key]
-        if (value.supportFileType)
-          toServerInputs[key] = transformToServerFile(value)
+        const value = currInputs[key]  // 获取每个键对应的值
 
-        else if (value[0]?.supportFileType)
-          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
+        if (value.supportFileType)  // 如果是单个文件类型
+          toServerInputs[key] = transformToServerFile(value)  // 转换为服务器需要的文件格式
 
-        else
-          toServerInputs[key] = value
+        else if (value[0]?.supportFileType)  // 如果是文件数组
+          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))  // 转换每个文件
+
+        else  // 如果是普通值(文本、数字等)
+          toServerInputs[key] = value  // 直接使用原始值
       })
     }
 
     const data: Record<string, any> = {
       inputs: toServerInputs,
-      query: message,
+
+      // 在 query 前拼接模型ID (0 或 1)
+      query: `${modelId}${message}`,
       conversation_id: isNewConversation ? null : currConversationId,
     }
 
@@ -371,11 +382,11 @@ const Main: FC<IMainProps> = () => {
       })
     }
 
-    // question
+    // question显示原始消息，不添加modelId前缀
     const questionId = `question-${Date.now()}`
     const questionItem = {
       id: questionId,
-      content: message,
+      content: message,  // 这里保持原始消息，不添加前缀
       isAnswer: false,
       message_files: files,
     }
@@ -634,6 +645,66 @@ const Main: FC<IMainProps> = () => {
     )
   }
 
+  // 添加登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  // 添加一个状态，用于区分是否显示 Welcome 组件
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  // 检查用户是否已登录
+  useEffect(() => {
+    const loginStatus = localStorage.getItem('isLoggedIn')
+    if (loginStatus === 'true') {
+      setIsLoggedIn(true)
+      // 直接设置为 false，不显示 Welcome 组件
+      setShowWelcome(false)
+    }
+  }, [])
+
+  // 处理登录 - 登录成功时设置状态
+  const handleLogin = () => {
+    setIsLoggedIn(true)
+    // 不显示 Welcome
+    setShowWelcome(false)
+    localStorage.setItem('isLoggedIn', 'true')
+  }
+
+  // 处理从 Welcome 开始聊天的回调
+  const handleWelcomeStartChat = (inputs: Record<string, any>) => {
+    console.log('Start chat with inputs:', inputs)
+    // 这里可以处理开始聊天的逻辑
+    setShowWelcome(false) // 隐藏 Welcome 组件，显示聊天界面
+    // 可能需要进行其他初始化操作
+  }
+
+  // 处理输入变化
+  const handleInputsChange = (inputs: Record<string, any>) => {
+    console.log('Inputs changed:', inputs)
+    // 保存用户输入
+  }
+
+  // 如果未登录，显示登录页面
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />
+  }
+
+  // 如果登录了且需要显示 Welcome
+  if (showWelcome && APP_INFO && promptConfig) {
+    return (
+      <Welcome
+        conversationName="新对话"
+        hasSetInputs={false}
+        isPublicVersion={true}
+        siteInfo={APP_INFO}
+        promptConfig={promptConfig}
+        onStartChat={handleWelcomeStartChat}
+        canEditInputs={true}
+        savedInputs={{}}
+        onInputsChange={handleInputsChange}
+      />
+    )
+  }
+
+  // 如果不需要显示 Welcome，则显示正常的聊天界面
   if (appUnavailable)
     return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
