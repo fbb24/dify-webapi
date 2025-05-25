@@ -18,7 +18,7 @@
 .loginButton {
     width: 100%;
     padding: 0.5rem 1rem;
-    background-color: #4f46e5;
+    background-color: #ad84db;
     color: white;
     border: none;
     border-radius: 0.375rem;
@@ -28,7 +28,7 @@
 }
 
 .loginButton:hover {
-    background-color: #4338ca;
+    background-color: #a764dd;
 }
 
 .inputField {
@@ -40,6 +40,6 @@
 }
 
 .inputField:focus {
-    border-color: #6366f1;
+    border-color: #7d38b6;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
