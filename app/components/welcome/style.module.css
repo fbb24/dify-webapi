@@ -22,8 +22,17 @@
 }
 
 .logo {
-  width: 48px;
-  height: 20px;
+  width: 153.6px;
+  height: 64px;
+  background: url(./icons/logo.png) center center no-repeat;
+  background-size: contain;
+  margin-top: -20px;
+  margin-bottom: -20px;
+}
+
+.headerLogo {
+  width: 120px;
+  height: 50px;
   background: url(./icons/logo.png) center center no-repeat;
   background-size: contain;
 }

@@ -129,67 +129,70 @@ const Welcome: FC<IWelcomeProps> = ({
   const renderHeader = () => {
     return (
       <div className='absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8 bg-white'>
-        <div className='relative'>
-          <button
-            ref={buttonRef} // 添加ref到按钮
-            className='flex items-center space-x-2 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors duration-200'
-            onClick={() => {
-              console.log("Button clicked, toggling dropdown");
-              setIsDropdownOpen(prev => !prev);
-            }}
-            id="model-selector"
-            name="model-selector"
-          >
-            <span className="font-medium">{selectedModel}</span>
-            <svg
-              className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+        <div className='flex items-center space-x-2'>
+          <div className='relative'>
+            <button
+              ref={buttonRef}
+              className='flex items-center space-x-2 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors duration-200'
+              onClick={() => {
+                console.log("Button clicked, toggling dropdown");
+                setIsDropdownOpen(prev => !prev);
+              }}
+              id="model-selector"
+              name="model-selector"
             >
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 111.414 1.414l-4 4a1 1 01-1.414 0l-4-4a 1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+              <span className="font-medium">{selectedModel}</span>
+              <svg
+                className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 111.414 1.414l-4 4a1 1 01-1.414 0l-4-4a 1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
 
-          {isDropdownOpen && (
-            <div
-              ref={dropdownRef} // 添加ref到下拉菜单
-              className='fixed top-[64px] left-8 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 w-64 z-[9999] overflow-hidden'
-              style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
-            >
-              <div className='py-1'>
-                <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50'>
-                  选择模型
-                </div>
-                {[
-                  { id: 'ChatGPT', name: 'ChatGPT', description: '适用于日常任务和通用问答' },
-                  { id: 'Claude 3.7 Sonnet', name: 'Claude 3.7 Sonnet', description: '强大的理解与创作能力' }
-                ].map((model) => (
-                  <div
-                    key={model.id}
-                    className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${selectedModel === model.id ? 'bg-gray-50' : ''}`}
-                    onClick={() => {
-                      // console.log("Model selected:", model.id);
-                      setSelectedModel(model.id as 'ChatGPT' | 'Claude 3.7 Sonnet');
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className='font-medium text-gray-800'>{model.name}</div>
-                        <div className='text-xs text-gray-500 mt-0.5'>{model.description}</div>
-                      </div>
-                      {selectedModel === model.id && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
+            {isDropdownOpen && (
+              <div
+                ref={dropdownRef}
+                className='fixed top-[64px] left-8 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 w-64 z-[9999] overflow-hidden'
+                style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
+              >
+                <div className='py-1'>
+                  <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50'>
+                    选择模型
                   </div>
-                ))}
+                  {[
+                    { id: 'ChatGPT', name: 'ChatGPT', description: '适用于日常任务和通用问答' },
+                    { id: 'Claude 3.7 Sonnet', name: 'Claude 3.7 Sonnet', description: '强大的理解与创作能力' }
+                  ].map((model) => (
+                    <div
+                      key={model.id}
+                      className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${selectedModel === model.id ? 'bg-gray-50' : ''}`}
+                      onClick={() => {
+                        // console.log("Model selected:", model.id);
+                        setSelectedModel(model.id as 'ChatGPT' | 'Claude 3.7 Sonnet');
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className='font-medium text-gray-800'>{model.name}</div>
+                          <div className='text-xs text-gray-500 mt-0.5'>{model.description}</div>
+                        </div>
+                        {selectedModel === model.id && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+          <div className={s.headerLogo} />
         </div>
       </div>
     );
@@ -482,8 +485,8 @@ const Welcome: FC<IWelcomeProps> = ({
               </div>
               : <div>
               </div>}
-            <a className='flex items-center pr-3 space-x-3' href="https://dify.ai/" target="_blank">
-              <span className='uppercase'>{t('app.chat.powerBy')}</span>
+            <a className='flex items-center pr-3 space-x-3 h-20' href="https://securemind.ai/" target="_blank">
+              <span className='uppercase'>{t('app.chat.powerBy')} SecureMind</span>
               <FootLogo />
             </a>
           </div>
