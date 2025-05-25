@@ -55,7 +55,7 @@ const Main: FC<IMainProps> = () => {
   })
   useEffect(() => {
     if (APP_INFO?.title)
-      document.title = `${APP_INFO.title}`
+      document.title = `${APP_INFO.title} - Powered by Dify`
   }, [APP_INFO?.title])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
@@ -134,22 +134,33 @@ const Main: FC<IMainProps> = () => {
         const { data } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
-        data.forEach((item: any) => {
-          newChatList.push({
-            id: `question-${item.id}`,
-            content: item.query,
-            isAnswer: false,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+        // 添加类型检查，确保data存在且是数组
+        if (data && Array.isArray(data)) {
+          data.forEach((item: any) => {
+            newChatList.push({
+              id: `question-${item.id}`,
+              content: item.query,
+              isAnswer: false,
+              message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
+            })
+            newChatList.push({
+              id: item.id,
+              content: item.answer,
+              agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
+              feedback: item.feedback,
+              isAnswer: true,
+              message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+            })
           })
-          newChatList.push({
-            id: item.id,
-            content: item.answer,
-            agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
-            feedback: item.feedback,
-            isAnswer: true,
-            message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
-          })
-        })
+        } else {
+          console.warn('获取的消息数据格式不正确或为空:', data)
+        }
+
+        setChatList(newChatList)
+      }).catch(error => {
+        // 添加错误处理
+        console.error('获取聊天列表失败:', error)
+        const newChatList = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
         setChatList(newChatList)
       })
     }
